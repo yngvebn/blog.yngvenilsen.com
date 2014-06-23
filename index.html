@@ -3,7 +3,22 @@
 <head>
 	<title>My blog</title>
 </head>
-<body>
+<body ng-app="blog">
+
+<ng-view></ng-view>
+<script type="text/javascript" src="/vendor/angular.min.js"></script>
+<script type="text/javascript" src="/vendor/angular-route.min.js"></script>
+<script type="text/javascript" src="/vendor/angular-sanitize.min.js"></script>
+<script type="text/javascript" src="/vendor/lodash.min.js"></script>
+<script type="text/javascript" src="/vendor/showdown.js"></script>
+<script type="text/javascript" src="/vendor/markdown.js"></script>
+<script type="text/javascript" src="/app/app.js"></script>
+<script type="text/javascript" src="/app/app.routes.js"></script>
+<script type="text/javascript" src="/app/FrontPage/FrontPage.js"></script>
+<script type="text/javascript" src="/app/FrontPage/PostsFactory.js"></script>
+<script type="text/javascript" src="/app/Post/Post.js"></script>
+<script type="text/javascript" src="/app/Post/PostFactory.js"></script>
+<script type="text/javascript" src="/app/Post/Decode.js"></script>
 
 </body>
 </html>

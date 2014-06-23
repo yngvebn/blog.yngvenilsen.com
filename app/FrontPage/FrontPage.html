@@ -1,0 +1,8 @@
+{{ frontPage.greeting }}
+
+<ul>
+	<li ng-repeat="post in frontPage.posts">
+		<a ng-href="{{post.path}}">{{ post.name }}</a>
+	</li>
+
+</ul>
