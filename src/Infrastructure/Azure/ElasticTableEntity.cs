@@ -38,9 +38,22 @@ namespace blogapi.yngvenilsen.com.Infrastructure.Azure
 
         #region DynamicObject overrides
 
+        public override IEnumerable<string> GetDynamicMemberNames()
+        {
+            return Properties.Keys;
+        }
+
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            result = this[binder.Name];
+            var entityProperty = this[binder.Name] as EntityProperty;
+            if (entityProperty == null)
+            {
+                result = this[binder.Name];
+            }
+            else
+            {
+                result = entityProperty.PropertyAsObject;
+            }
             return true;
         }
 
