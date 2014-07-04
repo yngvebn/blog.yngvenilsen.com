@@ -125,6 +125,9 @@
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\PostsController.cs" />
+    <Compile Include="Controllers\Resource.cs" />
+    <Compile Include="Controllers\ResourceTree.cs" />
+    <Compile Include="Controllers\RESTableController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

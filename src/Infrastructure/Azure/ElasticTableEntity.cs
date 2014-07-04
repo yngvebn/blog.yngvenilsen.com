@@ -122,6 +122,9 @@ namespace blogapi.yngvenilsen.com.Infrastructure.Azure
         private EntityProperty GetEntityProperty(string key, object value)
         {
             if (value == null) return new EntityProperty((string)null);
+            
+            if (value is EntityProperty) return value as EntityProperty;
+
             if (value.GetType() == typeof(byte[])) return new EntityProperty((byte[])value);
             if (value is bool) return new EntityProperty((bool)value);
             if (value is DateTimeOffset) return new EntityProperty((DateTimeOffset)value);
