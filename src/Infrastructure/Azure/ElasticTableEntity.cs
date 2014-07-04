@@ -14,6 +14,16 @@ namespace blogapi.yngvenilsen.com.Infrastructure.Azure
             this.Properties = new Dictionary<string, EntityProperty>();
         }
 
+        public static ElasticTableEntity FromDynamicTableEntity(DynamicTableEntity tableEntity)
+        {
+            return new ElasticTableEntity()
+            {
+                Properties = tableEntity.Properties,
+                RowKey = tableEntity.RowKey,
+                PartitionKey = tableEntity.PartitionKey
+            };
+        }
+
         public IDictionary<string, EntityProperty> Properties { get; private set; }
 
         public object this[string key]

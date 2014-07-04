@@ -1,16 +1,128 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Dynamic;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Routing;
+using System.Web.Security;
 using blogapi.yngvenilsen.com.Infrastructure.Azure;
 using Microsoft.WindowsAzure.Storage.Table;
 using Newtonsoft.Json;
 
 namespace blogapi.yngvenilsen.com.Controllers
 {
+    [RoutePrefix("api/v2")]
+    public class RESTableController : ApiController
+    {
+        [Route("{*path}"), HttpGet]
+        public IHttpActionResult Get(string path)
+        {
+            var tree = ResourceTree.Parse(path);
+            if (!tree.Resource.IsSingle)
+            {
+                return Ok(TableStorage.Get(tree.Resource.Name));
+            }
+            else if (tree.Resource.ChildRelation == null)
+            {
+                var elasticTableEntity = TableStorage.Get(tree.Resource.Name, new RowKey(tree.Resource.RowKey));
+                if (elasticTableEntity == null) return NotFound();
+
+                return Ok(elasticTableEntity);
+            }
+
+            return Ok();
+        }
+
+        [Route("{*path}"), HttpDelete]
+        public IHttpActionResult Delete(string path)
+        {
+            return Ok(path);
+        }
+
+        [Route("{*path}"), HttpPut]
+        public IHttpActionResult Update(string path)
+        {
+            return Ok(path);
+        }
+
+        [Route("{*path}"), HttpPost]
+        public IHttpActionResult Create(string path)
+        {
+            return Ok(path);
+        }
+    }
+
+    public class ResourceTree
+    {
+        public Resource Resource { get; set; }
+
+        private ResourceTree(IEnumerable<string> segments)
+        {
+            Resource = new Resource();
+            var currentResource = Resource;
+            foreach (var segment in segments)
+            {
+                if (currentResource.IsDone) currentResource = currentResource.CreateChild();
+
+                currentResource.Set(segment);
+            }
+        }
+        public static ResourceTree Parse(string path)
+        {
+            var segments = path.Split('/');
+            return new ResourceTree(segments.Where(c => !string.IsNullOrEmpty(c)));
+        }
+    }
+
+    public class Resource
+    {
+        public string Name { get; set; }
+        public string RowKey { get; set; }
+
+        [JsonIgnore]
+        public bool IsSingle
+        {
+            get { return !String.IsNullOrEmpty(RowKey); }
+        }
+
+        private Resource _child;
+
+        public Resource Child { get; private set; }
+
+        public string ChildRelation
+        {
+            get { return Child != null ? string.Format("{0}#{1}", Name, Child.Name) : null; }
+        }
+
+        public Resource CreateChild()
+        {
+            Child = new Resource();
+            return Child;
+        }
+
+        [JsonIgnore]
+        public bool IsDone
+        {
+            get { return !string.IsNullOrEmpty(Name) && !string.IsNullOrEmpty(RowKey); }
+        }
+
+        public void Set(string segment)
+        {
+            if (string.IsNullOrEmpty(Name))
+            {
+                Name = segment;
+            }
+            else
+            {
+                RowKey = segment;
+            }
+        }
+    }
+
+
     [RoutePrefix("api/v1")]
-    public class RestAPIController: ApiController
+    public class RestAPIController : ApiController
     {
         [Route("{resource}"), HttpGet]
         public IHttpActionResult Get(string resource)
@@ -28,7 +140,7 @@ namespace blogapi.yngvenilsen.com.Controllers
             var table = TableStorage.Table(resource);
 
             var query = new TableQuery<ElasticTableEntity>();
-            dynamic result = table.ExecuteQuery(query).First(e => e.RowKey.Equals(id) && e.PartitionKey.Equals(resource));
+            dynamic result = table.ExecuteQuery(query).First(e => e.RowKey.Equals(id));
             return Ok(result);
         }
 
@@ -39,7 +151,7 @@ namespace blogapi.yngvenilsen.com.Controllers
             var operation = TableOperation.Retrieve(resource, id);
             TableResult retrievedResult = table.Execute(operation);
             var entity = (DynamicTableEntity)retrievedResult.Result;
-            
+
             if (entity == null) return NotFound();
 
             table.Execute(TableOperation.Delete(entity));
@@ -56,14 +168,19 @@ namespace blogapi.yngvenilsen.com.Controllers
 
             var table = TableStorage.Table(resource);
             var operation = TableOperation.Retrieve(resource, id);
-            
+
             TableResult retrievedResult = table.Execute(operation);
             var entity = (DynamicTableEntity)retrievedResult.Result;
             if (entity == null) return NotFound();
-                table.Execute(TableOperation.Delete(entity));
-                
-            table.Execute(TableOperation.Insert(originalRequestData));
-            return Ok(originalRequestData);
+
+
+            dynamic res = Merge(entity, originalRequestData);
+
+            originalRequestData.id = id;
+
+            table.Execute(TableOperation.Delete(entity));
+            table.Execute(TableOperation.Insert(res));
+            return Ok(ElasticTableEntity.FromDynamicTableEntity(res));
         }
 
 
@@ -82,6 +199,17 @@ namespace blogapi.yngvenilsen.com.Controllers
 
             return Created(new Uri(string.Format("/api/v1/{0}/{1}", resource, obj.RowKey), UriKind.Relative), obj);
 
+        }
+
+        private static DynamicTableEntity Merge(DynamicTableEntity item1, ElasticTableEntity item2)
+        {
+            foreach (var prop in item2.Properties)
+            {
+                item1[prop.Key] = item2.Properties[prop.Key];
+            }
+
+
+            return item1;
         }
     }
 }
