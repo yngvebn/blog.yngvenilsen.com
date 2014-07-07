@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5A57C0
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RESTable", "RESTable\RESTable.csproj", "{678D0C14-BB38-492D-BAF3-2E330CE6A9C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,10 @@ Global
 		{6B3AA279-7017-4EFE-8CFA-99D9CE733DA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B3AA279-7017-4EFE-8CFA-99D9CE733DA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B3AA279-7017-4EFE-8CFA-99D9CE733DA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{678D0C14-BB38-492D-BAF3-2E330CE6A9C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{678D0C14-BB38-492D-BAF3-2E330CE6A9C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{678D0C14-BB38-492D-BAF3-2E330CE6A9C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{678D0C14-BB38-492D-BAF3-2E330CE6A9C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
